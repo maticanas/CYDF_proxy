@@ -12,7 +12,7 @@ from http_parser.reader import SocketReader
 
 #Client, Target
 C_HOST = '127.0.0.1' 
-C_PORT = 7025
+C_PORT = 7067
 T_HOST = ''
 T_PORT = 80
 BUFFSIZE = 1024
@@ -31,7 +31,7 @@ def change_to_deflate(data):
     cdata = data[:start_idx]
     cdata += deflate_str
     cdata += data[end_idx:]
-    print("==============changed to deflate ================")
+    print("==============reqeust Accept-Encoding changed to deflate ================")
     print cdata
     
     return cdata
@@ -40,13 +40,16 @@ def change(odata):
 
     num = odata.count(tstr)
     diff = (len(cstr) - len(tstr))*num
+    print diff
     CL = "Content-Length:"
+    if(odata.find(CL)==-1):
+        return odata
     CLs = odata.find(CL) + len(CL) + 1
     CLe = odata.find("\r\n", CLs)
     CLstr = odata[CLs:CLe]
     print CLstr
     CLstrlen = len(CLstr)
-    length = int(CLstrlen)
+    length = int(CLstr)
     length += diff
     CLstr_after = str(length)
     CLstr_afterlen = len(CLstr_after)
@@ -55,21 +58,9 @@ def change(odata):
 
     
     cdata = mdata.replace(tstr, cstr)
-    print odata
-    print "mdata = \n", mdata
-    print cdata
-    """
-    print "repr==========="
-    print repr(odata)
-    loc = odata.find(tstr)
-    #odata[loc:loc+len(tstr)] = cstr
-    print "index = ", loc
-    f = open("./gilgil.txt", 'w')
-    f.write(odata)
-    f.close()
-    print("\n\n\n\n")
-    print repr(odata)
-    """
+    print "original data=====================\n", odata
+    #print "mdata = \n", mdata
+    print "changed data======================\n",cdata
     return cdata
 
 
@@ -95,6 +86,14 @@ def GetURL(data):
         URL = data[URLs:URLe]
         print URL
         return (URL, PORT)
+
+    if(data.find("Host")!=-1):
+        conns = data.find("Host:")
+        URLs = data.find(" ", conns) + 1
+        URLe = data.find("\r\rn")
+        URL = data[URLs:URLe]
+        print URL
+        return (URL, PORT)
         
     return (URL, PORT)
     
@@ -106,28 +105,46 @@ def parse_and_send(data, conn):
 
     #socket going to target
     ts = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    ts.settimeout(1000)
+    ts.settimeout(10)
     ts.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     try:
         T_HOST, T_PORT = GetURL(data)
-        print T_HOST
-        print T_PORT
-        ts.connect((T_HOST, T_PORT))
+        print "Host and port : (%s, %s)\n", T_HOST, T_PORT
+        if(T_HOST == ""):
+            return -1
+        try:
+            ts.connect((T_HOST, T_PORT))
+        except:
+            ts.shutdown(1)
+            ts.close()
+            return -1
+        print("connected to ", T_HOST)
         f_data = change_to_deflate(data)
         ts.send(f_data)
+        print("request sent to target\n")
         recv_data = ''
-        while True:
-            rcdata = ts.recv(1024)
-            if not rcdata:
-                break
-            recv_data += rcdata
+        try:
+            while True:
+                rcdata = ts.recv(1024)
+                if not rcdata:
+                    break
+                recv_data += rcdata
+        except:
+            print("cannot get data\n")
+            ts.shutdown(1)
+            ts.close()
+            return -1
+
+        print("got data from target")
         #print "received data:", recv_data
         #print "repr", repr(recv_data)
         #print "str", str(recv_data)
-        print "now send to client"
+        print "data change"
         changed_data = change(recv_data)
+        print "send to client"
         conn.send(changed_data)
+        
         ts.shutdown(1)
     except (KeyboardInterrupt, SystemExit):
         ts.close()
@@ -154,7 +171,12 @@ while True:
         while True:
             #print("trying to get conn data")
             conn.setblocking(1)
-            data = conn.recv(BUFFSIZE)
+            try:
+                data = conn.recv(BUFFSIZE)
+            except socket.error as error:
+                if error.errno == 10054:
+                    conn.shutdown(1)
+                    break
             if not data:
                 conn.shutdown(1)
                 break
