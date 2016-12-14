@@ -12,7 +12,7 @@ from http_parser.reader import SocketReader
 
 #Client, Target
 C_HOST = '127.0.0.1' 
-C_PORT = 7082
+C_PORT = 8080
 T_HOST = ''
 T_PORT = 80
 BUFFSIZE = 1024
