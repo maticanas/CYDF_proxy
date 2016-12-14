@@ -12,7 +12,7 @@ from http_parser.reader import SocketReader
 
 #Client, Target
 C_HOST = '127.0.0.1' 
-C_PORT = 7067
+C_PORT = 7082
 T_HOST = ''
 T_PORT = 80
 BUFFSIZE = 1024
@@ -40,7 +40,7 @@ def change(odata):
 
     num = odata.count(tstr)
     diff = (len(cstr) - len(tstr))*num
-    print diff
+    #print diff
     CL = "Content-Length:"
     if(odata.find(CL)==-1):
         return odata
@@ -75,7 +75,7 @@ def GetURL(data):
         URLs = data.find("http://")
         URLe = data.find("/", URLs+7)
         URL = data[URLs+7:URLe]
-        print URL
+        #print URL
         return (URL, PORT)
 
         
@@ -84,7 +84,7 @@ def GetURL(data):
         URLs = data.find(" ", conns) + 1
         URLe = data.find(":")
         URL = data[URLs:URLe]
-        print URL
+        #print URL
         return (URL, PORT)
 
     if(data.find("Host")!=-1):
@@ -92,7 +92,7 @@ def GetURL(data):
         URLs = data.find(" ", conns) + 1
         URLe = data.find("\r\rn")
         URL = data[URLs:URLe]
-        print URL
+        #print URL
         return (URL, PORT)
         
     return (URL, PORT)
@@ -110,7 +110,7 @@ def parse_and_send(data, conn):
 
     try:
         T_HOST, T_PORT = GetURL(data)
-        print "Host and port : (%s, %s)\n", T_HOST, T_PORT
+        print "Host and port : \n", T_HOST, T_PORT
         if(T_HOST == ""):
             return -1
         try:
@@ -119,7 +119,7 @@ def parse_and_send(data, conn):
             ts.shutdown(1)
             ts.close()
             return -1
-        print("connected to ", T_HOST)
+        print "connected to ", T_HOST
         f_data = change_to_deflate(data)
         ts.send(f_data)
         print("request sent to target\n")
@@ -161,7 +161,7 @@ cs.settimeout(10)
 cs.setblocking(1)
 
 while True:
-    print("trying connection\n")
+    print("trying connection")
     try:
         conn, addr = cs.accept()
     except (KeyboardInterrupt, SystemExit):
@@ -185,340 +185,11 @@ while True:
             if(res==-1):
                 continue
         conn.close()
+        print "connection closed from addr : ", addr
+        print "\n\n\n"
     except (KeyboardInterrupt, SystemExit):
         conn.close()
         cs.close()
         
 cs.close()
 
-
-
-"""
-GET http://www.naver.com/ HTTP/1.1
-
-Accept: text/html, application/xhtml+xml, image/jxr, */*
-
-Accept-Language: ko-KR
-
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko
-
-Accept-Encoding: gzip, deflate
-
-Host: www.naver.com
-
-Proxy-Connection: Keep-Alive
-
-Cookie: NM_THEMECAST_NEW=tcc_lif%2Ctcc_fod; npic=mP7WswFNghnl3UZdeO33LPFoc49c1cqkV4XmoJnv6Q1srsxbSOtOARxFq1BPNsydCA==; NNB=6I3CCIVYVHPVM; nx_ssl=2
-
-
-Connected from :  ('127.0.0.1', 11371)
-CONNECT www.google.co.kr:443 HTTP/1.1
-
-Host: www.google.co.kr:443
-
-Proxy-Connection: keep-alive
-
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36
-
-
-
-
-Connected from :  ('127.0.0.1', 11372)
-CONNECT www.google.co.kr:443 HTTP/1.1
-
-Host: www.google.co.kr:443
-
-Proxy-Connection: keep-alive
-
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36
-
-
-
-
-Connected from :  ('127.0.0.1', 11373)
-CONNECT www.google.co.kr:443 HTTP/1.1
-
-Host: www.google.co.kr:443
-
-Proxy-Connection: keep-alive
-
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36
-
-
-
-
-Connected from :  ('127.0.0.1', 11374)
-CONNECT www.google.co.kr:443 HTTP/1.1
-
-Host: www.google.co.kr:443
-
-Proxy-Connection: keep-alive
-
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36
-
-
-
-
-Connected from :  ('127.0.0.1', 11375)
-CONNECT www.google.co.kr:443 HTTP/1.1
-
-Host: www.google.co.kr:443
-
-Proxy-Connection: keep-alive
-
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36
-
-
-
-
-Connected from :  ('127.0.0.1', 11376)
-CONNECT www.google.co.kr:443 HTTP/1.1
-
-Host: www.google.co.kr:443
-
-Proxy-Connection: keep-alive
-
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36
-
-
-
-
-Connected from :  ('127.0.0.1', 11378)
-Connected from :  ('127.0.0.1', 11379)
-Connected from :  ('127.0.0.1', 11380)
-Connected from :  ('127.0.0.1', 11381)
-Connected from :  ('127.0.0.1', 11382)
-Connected from :  ('127.0.0.1', 11458)
-
-
-
-"""
-
-
-
-"""
-Connected from :  ('127.0.0.1', 11128)
-sending data : GET http://www.naver.com/ HTTP/1.1
-
-Accept: text/html, application/xhtml+xml, image/jxr, */*
-
-Accept-Language: ko-KR
-
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko
-
-Accept-Encoding: gzip, deflate
-
-Host: www.naver.com
-
-Proxy-Connection: Keep-Alive
-
-Cookie: NM_THEMECAST_NEW=tcc_lif%2Ctcc_fod; nrefreshx=0; npic=mP7WswFNghnl3UZdeO33LPFoc49c1cqkV4XmoJnv6Q1srsxbSOtOARxFq1BPNsydCA==; NNB=6I3CCIVYVHPVM; nx_ssl=2; nid_iplevel=1; page_uid=fiGZjsoiqyRssKcy32VsssssssN-150613
-
-
-
-
-www.naver.com
-received data: HTTP/1.1 200 OK
-
-Server: nginx
-
-Date: Tue, 13 Dec 2016 05:18:06 GMT
-
-Content-Type: text/html; charset=UTF-8
-
-Transfer-Encoding: chunked
-
-Connection: close
-
-Cache-Control: no-cache, no-store, must-revalidate
-
-Pragma: no-cache
-
-P3P: CP="CAO DSP CURa ADMa TAIa PSAa OUR LAW STP PHY ONL UNI PUR FIN COM NAV INT DEM STA PRE"
-
-Content-Encoding: gzip
-
-X-Frame-Options: SAMEORIGIN
-
-
-
-53fe
-
-ﾋ
-"""
-
-#===============================================================================
-
-"""
-Connected from :  ('127.0.0.1', 8390)
-sending data : GET http://www.naver.com/ HTTP/1.1
-
-Accept: text/html, application/xhtml+xml, image/jxr, */*
-
-Accept-Language: ko-KR
-
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko
-
-Accept-Encoding: gzip, deflate
-
-Host: www.naver.com
-
-Proxy-Connection: Keep-Alive
-
-Cookie: NM_THEMECAST_NEW=tcc_lif%2Ctcc_fod; npic=mP7WswFNghnl3UZdeO33LPFoc49c1cqkV4XmoJnv6Q1srsxbSOtOARxFq1BPNsydCA==; NNB=6I3CCIVYVHPVM; nx_ssl=2
-
-
-
-
-www.naver.com
-received data: HTTP/1.1 200 OK
-
-Server: nginx
-
-Date: Wed, 14 Dec 2016 06:10:56 GMT
-
-Content-Type: text/html; charset=UTF-8
-
-Transfer-Encoding: chunked
-
-Connection: close
-
-Cache-Control: no-cache, no-store, must-revalidate
-
-Pragma: no-cache
-
-P3P: CP="CAO DSP CURa ADMa TAIa PSAa OUR LAW STP PHY ONL UNI PUR FIN COM NAV INT DEM STA PRE"
-
-Content-Encoding: gzip
-
-X-Frame-Options: SAMEORIGIN
-
-
-
-5363
-
-ﾋ
-now send to client
-Connected from :  ('127.0.0.1', 8391)
-sending data : GET http://img.naver.net/static/newsstand/up/2014/0715/016.gif HTTP/1.1
-
-Accept: image/png, image/svg+xml, image/jxr, image/*;q=0.8, */*;q=0.5
-
-Referer: http://www.naver.com/
-
-Accept-Language: ko-KR
-
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko
-
-Accept-Encoding: gzip, deflate
-
-If-Modified-Since: Tue, 15 Jul 2014 07:15:47 GMT
-
-Host: img.naver.net
-
-Proxy-Connection: Keep-Alive
-
-
-
-
-img.naver.net
-received data: HTTP/1.1 304 Not Modified
-
-Date: Wed, 14 Dec 2016 06:10:57 GMT
-
-Age: 14098
-
-Expires: Thu, 15 Dec 2016 13:56:02 GMT
-
-
-
-
-now send to client
-sending data : GET http://www.naver.com/include/newsstand/press_info.json HTTP/1.1
-
-Accept: */*
-
-Content-Type: application/x-www-form-urlencoded; charset=utf-8
-
-charset: utf-8
-
-X-Requested-With: XMLHttpRequest
-
-If-Modified-Since: Thu, 1 Jan 1970 00:00:00 GMT
-
-Referer: http://www.naver.com/
-
-Accept-Language: ko-KR
-
-Accept-Encoding: gzip, deflate
-
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko
-
-Host: www.naver.com
-
-Proxy-Connection: Keep-Alive
-
-Cookie: NM_THEMECAST_NEW=tcc_lif%2Ctcc_fod; nrefreshx=0; npic=mP7WswFNghnl3UZdeO33LPFoc49c1cqkV4XmoJnv6Q1srsxbSOtOARxFq1BPNsydCA==; NNB=6I3CCIVYVHPVM; nx_ssl=2; nid_iplevel=1
-
-
-
-
-www.naver.com
-received data: HTTP/1.1 200 OK
-
-Server: nginx
-
-Date: Wed, 14 Dec 2016 06:11:04 GMT
-
-Content-Type: text/html; charset=UTF-8
-
-Transfer-Encoding: chunked
-
-Connection: close
-
-Content-Encoding: gzip
-
-Vary: Accept-Encoding
-
-
-
-cc0
-
-ﾋ
-now send to client
-Connected from :  ('127.0.0.1', 8394)
-sending data : GET http://img.naver.net/static/newsstand/up/2014/0715/028.gif HTTP/1.1
-
-Accept: image/png, image/svg+xml, image/jxr, image/*;q=0.8, */*;q=0.5
-
-Referer: http://www.naver.com/
-
-Accept-Language: ko-KR
-
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko
-
-Accept-Encoding: gzip, deflate
-
-If-Modified-Since: Tue, 15 Jul 2014 07:15:48 GMT
-
-Host: img.naver.net
-
-Proxy-Connection: Keep-Alive
-
-
-
-
-img.naver.net
-received data: HTTP/1.1 304 Not Modified
-
-Date: Wed, 14 Dec 2016 06:11:04 GMT
-
-Age: 454354
-
-Expires: Mon, 12 Dec 2016 11:03:12 GMT
-
-
-
-
-now send to client
-"""
